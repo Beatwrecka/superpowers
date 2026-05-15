@@ -17,6 +17,8 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
+> [!IMPORTANT]
+> When saving to a repository path (like `docs/plans/` or `docs/superpowers/plans/`), set `IsArtifact: false` in the `write_to_file` tool. Only use `IsArtifact: true` for temporary files in the conversation's brain/artifact directory.
 
 ## Scope Check
 
