@@ -239,7 +239,7 @@ Done!
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
-- Dispatch multiple implementation subagents in parallel (conflicts)
+- Dispatch multiple implementation subagents in parallel (conflicts) — EXCEPT for independent file-creation tasks where each subagent writes to isolated files and the shared surface is append-only (see Batch Parallelism below)
 - Make subagent read plan file (provide full text instead)
 - Skip scene-setting context (subagent needs to understand where task fits)
 - Ignore subagent questions (answer before letting them proceed)
@@ -248,6 +248,9 @@ Done!
 - Let implementer self-review replace actual review (both are needed)
 - **Start code quality review before spec compliance is ✅** (wrong order)
 - Move to next task while either review has open issues
+- **Restructure shared integration surfaces** (App.jsx, shell components, demo registry, shared utilities) unless the task explicitly says "refactor architecture"
+- **Return without verification** — subagent MUST run project-level verify commands (lint, build) before completing and MUST report the output. Unfixed lint errors must be fixed before returning.
+- **Create unrequested extras** — never create components, demo files, UI elements, or utility files not explicitly requested in the task prompt. Extra output causes registry bloat and user confusion.
 
 **If subagent asks questions:**
 - Answer clearly and completely
@@ -263,6 +266,44 @@ Done!
 **If subagent fails task:**
 - Dispatch fix subagent with specific instructions
 - Don't try to fix manually (context pollution)
+
+## Implementer Pre-Return Checklist
+
+Every implementer subagent MUST complete these steps before returning to the orchestrator:
+
+1. Run project-level verification commands (e.g., `npm run build`, `npm run lint`, `npm test`)
+2. Fix ALL errors before returning — lint warnings, unused variables, build failures
+3. Return the verification output in the task result
+4. If verification passes, return a concise summary of what was changed
+5. If verification revealed issues that were fixed, note them so the orchestrator knows they were caught
+
+**Why this matters:** Orchestrator models waste tokens and context fixing lint errors that the implementer should have caught. This checklist turns a recurring cost into a one-time prevention.
+
+## Batch Subagent Parallelism
+
+When tasks are **independent file-creation operations** (e.g., porting components, creating isolated modules), subagents CAN be dispatched in parallel. This was validated at scale:
+
+### When parallel dispatch is safe
+
+- Each subagent creates its own isolated files (e.g., `src/components/Foo.jsx`, `src/demos/foo.demo.jsx`)
+- The shared integration surface (e.g., `src/demos/index.js`) uses **append-only** patterns (adding to end of array, adding import + registry entry)
+- Subagents do NOT edit each other's files
+- Subagents do NOT restructure shared shell components
+
+### Batch guidelines
+
+- **5-6 subagents per batch** — more risks API rate limits without meaningful speed gains
+- **Wait for all in batch to complete** before dispatching the next batch
+- **Verify build after each batch** (`npm run build && npm run lint`)
+- **Handle the shared surface** (registry/index) carefully — appends from multiple subagents won't conflict if they each add to the end
+
+### Proven at scale
+
+- 29 components ported in 6 parallel batches in a single session
+- Zero merge conflicts across all batches
+- Zero new lint errors introduced
+- Cost: ~$0.04 per component port
+- Each subagent completed in ~30-60 seconds
 
 ## Integration
 

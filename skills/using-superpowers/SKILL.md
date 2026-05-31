@@ -70,8 +70,10 @@ digraph skill_flow {
     "Invoke Skill tool" -> "Announce: 'Using [skill] to [purpose]'";
     "Announce: 'Using [skill] to [purpose]'" -> "Has checklist?";
     "Has checklist?" -> "Create TodoWrite todo per item" [label="yes"];
-    "Has checklist?" -> "Follow skill exactly" [label="no"];
-    "Create TodoWrite todo per item" -> "Follow skill exactly";
+    "Follow skill exactly" -> "Respond (including clarifications)";
+    "Respond (including clarifications)" -> "Task complete?" [label="if final action"];
+    "Task complete?" -> "Invoke skill-refinement-loop" [label="yes"];
+    "Invoke skill-refinement-loop" -> "End session/Turn";
 }
 ```
 

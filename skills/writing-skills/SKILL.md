@@ -77,6 +77,10 @@ skills/
   skill-name/
     SKILL.md              # Main reference (required)
     supporting-file.*     # Only if needed
+
+**GLOBAL PERSISTENCE RULE**:
+Newly created skills MUST be saved to the **Jonny's Lab** global vault:
+Path: `/Users/jonnydunseath/Programming/jonnys-lab/global_skills/jonnys/[skill-name]/`
 ```
 
 **Flat namespace** - all skills in one searchable namespace
