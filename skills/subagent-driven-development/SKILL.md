@@ -101,6 +101,21 @@ Use the least powerful model that can handle each role to conserve cost and incr
 - Touches multiple files with integration concerns → standard model
 - Requires design judgment or broad codebase understanding → most capable model
 
+**Calibrated model-role table** (from Phase 04 SDD session, 2026-06-28 — 3 sprints, 10 subagents, all successful):
+
+| Role | Model | Tasks | Avg Duration | Notes |
+|------|-------|-------|-------------|-------|
+| Implementer (mechanical) | `sonnet` | 3 implementers | 3-6 min | Multi-file, clear briefs, existing patterns |
+| Task reviewer (spec+quality) | `sonnet` | 3 reviewers | 30-60s | Diff-based, read-only, calibrated findings |
+| Fix subagent | `sonnet` | 3 fixers | 3-5 min | One per sprint with all findings |
+| Final whole-branch reviewer | `opus` | 1 final review | 2-3 min | Broad diff, architecture + docs + security |
+
+**Rules derived:**
+- `sonnet` is the workhorse for implementation, review, and fix roles — reliable at all three when the brief is specific.
+- Reserve `opus` for exactly one role: the final whole-branch review. It catches nuanced documentation, architecture, and cross-sprint consistency issues that `sonnet` reviewers miss.
+- Never use `opus` for per-task review — the marginal gain over `sonnet` is near-zero for task-scoped diffs.
+- If a task implementer reports BLOCKED, re-dispatch with `opus` before splitting the task — the problem is often reasoning depth, not scope.
+
 ## Handling Implementer Status
 
 Implementer subagents report one of four statuses. Handle each appropriately:

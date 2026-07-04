@@ -130,6 +130,14 @@ if [ -f pyproject.toml ]; then poetry install; fi
 if [ -f go.mod ]; then go mod download; fi
 ```
 
+**pnpm caveat:** pnpm in non-TTY environments (including worktrees) may silently skip linking binaries to `node_modules/.bin/` unless `CI=true` is set. If `pnpm install` appears to succeed but `tsc`, `vitest`, or other binaries show "command not found", run:
+
+```bash
+rm -rf node_modules && CI=true pnpm install --no-frozen-lockfile
+```
+
+This is known to affect worktree environments where pnpm's TTY detection fails. The `--no-frozen-lockfile` flag prevents pnpm from rejecting the fresh install due to lockfile state mismatch. (Ref: `knowledge/lessons_learned.md` 2026-06-28)
+
 ## Step 4: Verify Clean Baseline
 
 Run tests to ensure workspace starts clean:
